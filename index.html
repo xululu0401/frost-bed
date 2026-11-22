@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>下霜前那畦菜</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f3efe6; color: #2b2a24; line-height: 1.6; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 14px 40px; }
+  h1 { font-size: 26px; letter-spacing: 1px; }
+  .lead { color: #5e5a4c; font-size: 14px; margin: 4px 0 14px; }
+  .card { background: #fffdf8; border-radius: 8px; padding: 14px; border: 1px solid #ddd5c3; margin-bottom: 14px; min-width: 0; }
+  .card h2 { font-size: 15px; color: #57503d; font-weight: 600; margin-bottom: 8px; overflow-wrap: anywhere; }
+  input { font: inherit; font-size: 14px; padding: 4px 6px; border: 1px solid #c2b9a3; border-radius: 5px; width: 100%; min-width: 0; background: #fff; font-variant-numeric: tabular-nums; }
+  .bad { border-color: #b23a2b !important; background: #fff0ec !important; }
+  label { font-size: 12px; color: #716a57; display: block; }
+  button { font: inherit; font-size: 13px; padding: 6px 11px; border-radius: 5px; border: 1px solid #4f6b2f; background: #4f6b2f; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #4f6b2f; }
+  button.x { padding: 2px 7px; background: #fff; color: #5e5a4c; border-color: #cfc6b0; }
+  button:disabled { opacity: .45; cursor: default; }
+  .row5 { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .presets, .dl { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .err { display: none; background: #fff0ec; border: 1px solid #e0b2a7; color: #8a2a1b; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; overflow-wrap: anywhere; }
+  .muted { color: #716a57; font-size: 12px; }
+  /* 菜一样样 */
+  .crops { display: grid; gap: 8px; }
+  .crop { display: grid; grid-template-columns: 1.4fr 1fr 0.9fr 1fr 0.9fr auto; gap: 8px; align-items: end; border-left: 6px solid var(--st, #bbb); padding: 4px 0 8px 8px; border-bottom: 1px dashed #e3dccb; }
+  .crop .ops { display: flex; gap: 3px; padding-bottom: 2px; }
+  @media (max-width: 680px) { .crop { grid-template-columns: 1fr 1fr; } .crop .nm { grid-column: span 2; } .crop .ops { grid-column: span 2; justify-content: flex-end; } }
+  #summary { font-size: 19px; font-weight: 700; overflow-wrap: anywhere; margin-bottom: 8px; }
+  #facts { margin: 8px 0 0 18px; font-size: 14px; } #facts li { margin: 3px 0; overflow-wrap: anywhere; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: inherit; }
+  #cal svg .hit { cursor: crosshair; }
+  .leg { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #57503d; margin-top: 6px; }
+  .leg i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; vertical-align: 0; margin-right: 4px; }
+  .tw { overflow-x: auto; }
+  table.t { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  table.t th, table.t td { padding: 5px 6px; border-bottom: 1px solid #ebe5d6; text-align: left; white-space: nowrap; }
+  table.t th:first-child, table.t td:first-child { white-space: normal; overflow-wrap: anywhere; min-width: 72px; }
+  table.t th { color: #57503d; font-weight: 600; }
+  table.t td.ok { color: #3f6a1f; } table.t td.no { color: #a8321f; }
+  table.t td.cur { font-weight: 700; background: #f6f1e3; }
+  @media (max-width: 480px) { table.t { font-size: 12px; } table.t th, table.t td { padding: 4px 3px; } }
+  #sugs { display: grid; gap: 8px; }
+  .sug { display: flex; gap: 10px; align-items: center; justify-content: space-between; border: 1px solid #ebe5d6; border-radius: 6px; padding: 8px 10px; }
+  .sug span { min-width: 0; overflow-wrap: anywhere; font-size: 14px; } .sug button { flex: none; }
+  @media (max-width: 480px) { .sug { flex-direction: column; align-items: stretch; } #summary { font-size: 17px; } }
+  .narrow { display: none; } @media (max-width: 600px) { .narrow { display: inline; } }
+  .how { font-size: 13px; color: #45412f; } .how p { margin: 6px 0; } .how b { color: #2b2a24; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>下霜前那畦菜</h1>
+  <p class="lead">秋菜种晚了，还没长成就挨了冻；种早了又怕热。把当地一年的气温和你想种的菜填进来，这里一天天往下攒积温，告诉你每样菜哪天能收、会不会被霜冻赶上、最晚哪天还来得及种。默认是一块虚构的北方菜地，作物参数是示例值，按种子包装或当地经验改。</p>
+
+  <div class="card">
+    <h2>这里一年的气温</h2>
+    <div class="row5">
+      <div><label for="hot">盛夏日平均（°C）</label><input id="hot" inputmode="decimal" maxlength="6"></div>
+      <div><label for="cold">隆冬日平均（°C）</label><input id="cold" inputmode="decimal" maxlength="6"></div>
+      <div><label for="peak">一年最热在哪天</label><input id="peak" maxlength="6" placeholder="07-20"></div>
+      <div><label for="range">昼夜温差（°C）</label><input id="range" inputmode="decimal" maxlength="5"></div>
+      <div><label for="cap">积温封顶（°C，再热也不多算）</label><input id="cap" inputmode="decimal" maxlength="5"></div>
+    </div>
+    <p class="muted" style="margin-top:6px">「日平均」是一天的平均气温，不是最高温；查天气网站的历史月平均，取最热月和最冷月填就行。日最低按「日平均 − 温差的一半」算。</p>
+    <div class="presets" id="presets"></div>
+  </div>
+
+  <div class="card">
+    <h2>想种的菜（最多 6 样）</h2>
+    <div class="crops" id="crops"></div>
+    <div class="presets"><button id="add" class="ghost">＋ 加一样</button></div>
+    <p class="muted" style="margin-top:6px">起点温度：低于它就不长。需要的积温：每天（日平均 − 起点温度）加起来到这个数就能收。怕冻温度：最低气温到这个数就冻坏。</p>
+  </div>
+
+  <div class="err" id="error"></div>
+
+  <div id="out">
+    <div class="card">
+      <div id="summary"></div>
+      <ul id="facts"></ul>
+    </div>
+    <div class="card">
+      <h2>一年的日历：每样菜从种下到收（点日历条可以直接改播种日）</h2>
+      <div id="cal"></div>
+      <div class="leg"><span><i style="background:#cfe0ef"></i>霜期（最低 ≤ 0°C）</span><span><i style="background:#e3eccf"></i>这样菜能种的日子</span><span><i style="background:#5b8a2b"></i>种下到收</span><span><i style="background:#c0472c"></i>种下到冻坏</span><span><i style="background:#c9a24a;height:3px"></i>日平均气温</span></div>
+    </div>
+    <div class="card">
+      <h2>早种、晚种各一两周会怎样</h2>
+      <div class="tw"><table class="t" id="offs"></table></div>
+      <p class="muted" style="margin-top:4px">粗体那列是你填的播种日。点格子就把播种日改成那天。<span class="narrow">表格可以左右滑动，晚种的两列在右边。</span></p>
+    </div>
+    <div class="card" id="sugCard">
+      <h2>换个做法看看（点一下代回去重算）</h2>
+      <div id="sugs"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>带走结果</h2>
+    <div class="dl">
+      <button id="dlCSV">CSV 表格</button><button id="dlMD">Markdown 报告</button><button id="dlPNG">结果卡 PNG</button><button id="dlJSON" class="ghost">JSON 备份</button>
+      <button id="reset" class="ghost">恢复默认</button>
+    </div>
+    <p class="muted" style="margin-top:6px">输入自动保存在这台设备的浏览器里，刷新还在。</p>
+  </div>
+
+  <div class="card how">
+    <h2>怎么算的</h2>
+    <p><b>气温</b>：一年里每天的日平均气温按一条正弦起伏，隆冬最低、盛夏最高、最热那天由你填；日最低气温 = 日平均 − 昼夜温差的一半。这是「常年平均的一年」，不是今年的天气预报。</p>
+    <p><b>积温</b>：从播种那天起，每天记一笔「日平均 − 起点温度」（低于 0 记 0，日平均超过封顶温度按封顶算），加到需要的积温那天就收。这是农学里常用的有效积温（日平均法）。</p>
+    <p><b>冻</b>：收之前（含收的那天）只要有一天日最低气温 ≤ 这样菜的怕冻温度，就算冻坏。能种的日子 = 一年 365 天挨个试种一遍，赶得上的那些天。</p>
+    <p class="muted">不算：寒潮、倒春寒、暖冬这些年份差异，盖膜和大棚，光照、水肥、病虫，苗期和成株耐冻不同。作物参数是示例值，不同品种差别很大。这只是排日子的参考，不是农技指导。</p>
+  </div>
+</div>
+
+  <script>
+/* 下霜前那畦菜 · 计算核心
+ * 当地一年的日平均气温按正弦：盛夏日平均、隆冬日平均、最热在哪天；日最低 = 日平均 − 昼夜温差/2。
+ * 每样菜：播种日、起点温度 Tb、需要的积温（°C·天）、怕冻到几度。
+ * 每天的有效积温 = max(0, min(日平均, 封顶温度) − Tb)（日平均法）；从播种日起逐日累加，攒够就收。
+ * 收获前（含收获当天）只要有一天最低气温 ≤ 怕冻温度，就算冻坏。
+ * 输出：收获日、用了几天、能不能赶在冻之前、能种的日子（播种窗口）、早/晚种对照、可代回的建议。 */
+(function (root) {
+  'use strict';
+  const Y = 365;
+  const MAX_CROPS = 6;
+  const MD = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const START = MD.reduce((a, d, i) => { a.push(i ? a[i - 1] + MD[i - 1] : 0); return a; }, []);
+
+  function Bad(message, field) { const e = new Error(message); e.field = field; return e; }
+  function num(v, field, label, lo, hi) {
+    const s = String(v == null ? '' : v).trim();
+    if (!/^-?\d+(\.\d+)?$/.test(s)) throw Bad(label + '要填数字（现在是「' + s + '」）', field);
+    const x = Number(s);
+    if (!(x >= lo && x <= hi)) throw Bad(label + '要在 ' + lo + ' 到 ' + hi + ' 之间（现在是 ' + s + '）', field);
+    return x;
+  }
+  /* 08-25 / 8-25 / 8/25 / 8.25 / 8月25日 → 一年里第几天（0 = 1 月 1 日，不算闰年） */
+  function parseDate(v, field, label) {
+    const s = String(v == null ? '' : v).trim();
+    const m = /^(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*日?$/.exec(s);
+    if (!m) throw Bad(label + '要写成 08-25 这样（现在是「' + s + '」）', field);
+    const mo = +m[1], d = +m[2];
+    if (mo < 1 || mo > 12 || d < 1 || d > MD[mo - 1]) throw Bad(label + '没有这一天（现在是「' + s + '」，2 月按 28 天算）', field);
+    return START[mo - 1] + d - 1;
+  }
+  const mod = (d) => ((d % Y) + Y) % Y;
+  function md(d) {
+    const x = mod(Math.round(d));
+    let m = 11; while (START[m] > x) m--;
+    const z = (n) => String(n).padStart(2, '0');
+    return z(m + 1) + '-' + z(x - START[m] + 1);
+  }
+  /* 绝对天数（可跨年）→ 「次年 03-15」 */
+  function when(abs) { const y = Math.floor(abs / Y); return (y >= 1 ? (y === 1 ? '次年 ' : y + ' 年后 ') : '') + md(abs); }
+  const f0 = (x) => String(Math.round(x));
+  const fl = (x) => String(Math.floor(x + 1e-9)); /* 攒到的积温往下取整：显示的数 ≤ 真实值，和「换品种」建议同口径 */
+  const f1 = (x) => { const v = Math.round(x * 10) / 10; return (Object.is(v, -0) ? 0 : v).toFixed(1); };
+
+  function parse(inp) {
+    if (!inp || typeof inp !== 'object' || !Array.isArray(inp.crops)) throw Bad('输入不完整', 'hot');
+    const P = {};
+    P.hot = num(inp.hot, 'hot', '盛夏日平均气温', -30, 40);
+    P.cold = num(inp.cold, 'cold', '隆冬日平均气温', -40, 35);
+    if (P.cold > P.hot) throw Bad('隆冬（' + P.cold + '°C）比盛夏（' + P.hot + '°C）还热，填反了？', 'cold');
+    P.peak = parseDate(inp.peak, 'peak', '一年最热在哪天');
+    P.range = num(inp.range, 'range', '昼夜温差', 0, 30);
+    P.cap = num(inp.cap, 'cap', '积温封顶温度', 15, 45);
+    if (!inp.crops.length) throw Bad('至少要有一样菜', 'add');
+    if (inp.crops.length > MAX_CROPS) throw Bad('最多 ' + MAX_CROPS + ' 样', 'add');
+    P.crops = inp.crops.map((c, i) => {
+      const f = 'c' + i + '-';
+      const name = String(c && c.name != null ? c.name : '').trim();
+      if (!name) throw Bad('第 ' + (i + 1) + ' 样菜没写名字', f + 'name');
+      if (name.length > 12) throw Bad('第 ' + (i + 1) + ' 样菜名字最多 12 个字', f + 'name');
+      const n = '「' + name + '」';
+      const x = {
+        name,
+        sow: parseDate(c.sow, f + 'sow', n + '播种日'),
+        base: num(c.base, f + 'base', n + '起点温度', -5, 20),
+        need: num(c.need, f + 'need', n + '需要的积温', 10, 6000),
+        kill: num(c.kill, f + 'kill', n + '怕冻温度', -30, 10)
+      };
+      if (x.base >= P.cap) throw Bad(n + '起点温度（' + x.base + '°C）要低于封顶温度（' + P.cap + '°C），不然一天也攒不到', f + 'base');
+      return x;
+    });
+    P.mean = (P.hot + P.cold) / 2;
+    P.amp = (P.hot - P.cold) / 2;
+    return P;
+  }
+
+  /* 第 d 天（可为任意整数）的日平均、日最低 */
+  const tMean = (P, d) => P.mean + P.amp * Math.cos(2 * Math.PI * (d - P.peak) / Y);
+  const tMin = (P, d) => tMean(P, d) - P.range / 2;
+  const gdd = (P, c, d) => Math.max(0, Math.min(tMean(P, d), P.cap) - c.base);
+
+  /* 从 sow 那天种下，逐日走最多一年 */
+  function grow(P, c, sow) {
+    let cum = 0;
+    for (let j = 0; j < Y; j++) {
+      const d = sow + j;
+      if (tMin(P, d) <= c.kill + 1e-12) return { state: 'kill', sow, killAt: d, day: j, cum };
+      cum += gdd(P, c, d);
+      if (cum >= c.need - 1e-9) return { state: 'ok', sow, harvest: d, days: j + 1, cum };
+    }
+    return { state: 'short', sow, cum };
+  }
+  /* 收完以后多少天才冻（一年内不冻返回 null） */
+  function spare(P, c, harvest) {
+    for (let j = 1; j <= Y; j++) if (tMin(P, harvest + j) <= c.kill + 1e-12) return j;
+    return null;
+  }
+  /* 一年 365 个播种日里哪些能赶上；连续段（首尾相接的算一段） */
+  function windows(P, c) {
+    const ok = [];
+    for (let s = 0; s < Y; s++) ok.push(grow(P, c, s).state === 'ok');
+    const n = ok.filter(Boolean).length;
+    if (n === 0) return { all: false, none: true, runs: [], ok };
+    if (n === Y) return { all: true, none: false, runs: [{ from: 0, to: Y - 1, len: Y }], ok };
+    let s0 = 0; while (ok[s0]) s0++; /* 从一个不行的日子之后开始数，保证不把一段切成两截 */
+    const runs = [];
+    for (let k = 1; k <= Y; k++) {
+      const d = mod(s0 + k);
+      if (ok[d] && !ok[mod(d - 1)]) { let e = d; while (ok[mod(e + 1)]) e = mod(e + 1); runs.push({ from: d, to: e, len: mod(e - d) + 1 }); }
+    }
+    return { all: false, none: false, runs, ok };
+  }
+  /* 往前找最近能种的日子 / 往后找最近能种的日子（返回往前/往后几天） */
+  function nearestOk(w, sow) {
+    let back = null, fwd = null;
+    for (let k = 1; k < Y; k++) { if (back == null && w.ok[mod(sow - k)]) back = k; if (fwd == null && w.ok[mod(sow + k)]) fwd = k; }
+    return { back, fwd };
+  }
+  /* 不行的日子 → 霜期（任何一天最低 ≤ 0°C） */
+  function frostSeason(P) {
+    const fr = []; for (let d = 0; d < Y; d++) fr.push(tMin(P, d) <= 1e-12);
+    const n = fr.filter(Boolean).length;
+    if (n === 0) return { free: Y, none: true };
+    if (n === Y) return { free: 0, all: true };
+    let first = null, last = null;
+    for (let d = 0; d < Y; d++) {
+      if (fr[d] && !fr[mod(d - 1)]) first = d; /* 入冬第一个霜日 */
+      if (!fr[d] && fr[mod(d - 1)]) last = mod(d - 1); /* 开春最后一个霜日 */
+    }
+    return { free: Y - n, first, last };
+  }
+
+  const OFFS = [-14, -7, 0, 7, 14];
+  function verdict(g) {
+    if (g.state === 'ok') return when(g.harvest) + ' 收';
+    if (g.state === 'kill') return when(g.killAt) + ' 冻坏';
+    return '一年攒不够';
+  }
+
+  function core(P) {
+    const fs = frostSeason(P);
+    const crops = P.crops.map((c, i) => {
+      const g = grow(P, c, c.sow);
+      const w = windows(P, c);
+      const near = nearestOk(w, c.sow);
+      let run = null;
+      if (w.ok[c.sow]) run = w.runs.find((r) => mod(c.sow - r.from) <= mod(r.to - r.from)) || null;
+      const late = run ? mod(run.to - c.sow) : null; /* 还能拖几天 */
+      const sp = g.state === 'ok' ? spare(P, c, g.harvest) : null;
+      const offs = OFFS.map((o) => { const x = grow(P, c, c.sow + o); return { off: o, sow: md(c.sow + o), g: x, text: verdict(x) }; });
+      return { i, c, g, w, near, run, late, spare: sp, offs };
+    });
+    return { P, fs, crops };
+  }
+
+  function sumText(x) {
+    const c = x.c, g = x.g;
+    if (g.state === 'ok') return '「' + c.name + '」' + md(c.sow) + ' 种，' + when(g.harvest) + ' 收（' + g.days + ' 天）';
+    if (g.state === 'kill' && g.day === 0) return '「' + c.name + '」' + md(c.sow) + ' 种，种下当天最低气温就到 ' + f1(c.kill) + '°C，当天就冻了';
+    if (g.state === 'kill') return '「' + c.name + '」' + md(c.sow) + ' 种，积温才攒到 ' + fl(g.cum) + '/' + f0(c.need) + '，' + when(g.killAt) + ' 就冻了';
+    return '「' + c.name + '」' + md(c.sow) + ' 种，一年也只攒到 ' + fl(g.cum) + '/' + f0(c.need);
+  }
+  function fixText(x) {
+    if (x.g.state === 'ok') return '';
+    if (x.w.none) return '这里一年里哪天种都赶不上';
+    const b = x.near.back, f = x.near.fwd;
+    if (b != null && (f == null || b <= f)) return '最晚 ' + md(x.c.sow - b) + ' 得种下（早 ' + b + ' 天）';
+    return '最早 ' + md(x.c.sow + f) + ' 才能种（晚 ' + f + ' 天）';
+  }
+
+  function calculate(inp) {
+    const P = parse(inp);
+    const r = core(P);
+    const bad = r.crops.filter((x) => x.g.state !== 'ok'), good = r.crops.filter((x) => x.g.state === 'ok');
+    let summary;
+    if (!bad.length) summary = (r.crops.length === 1 ? '这样菜' : r.crops.length + ' 样菜都') + '能赶在冻之前收' + (r.crops.length === 1 ? '：' + sumText(r.crops[0]) : '') + '。';
+    else summary = (r.crops.length === 1 ? '' : r.crops.length + ' 样里' + (good.length ? '有 ' + good.length + ' 样赶得上，' : '一样都赶不上：')) + bad.map((x) => sumText(x) + '，' + fixText(x)).join('；') + '。';
+    const facts = [];
+    facts.push('按这里的气温：日平均 ' + f1(P.cold) + '～' + f1(P.hot) + '°C，' + md(P.peak) + ' 最热，昼夜温差 ' + f1(P.range) + '°C；' +
+      (r.fs.none ? '一年都不下霜（最低气温都在 0°C 以上）。' : r.fs.all ? '一年天天最低气温都在 0°C 以下。' : '初霜约 ' + md(r.fs.first) + '、终霜约 ' + md(r.fs.last) + '，无霜期 ' + r.fs.free + ' 天（最低气温 > 0°C 的日子）。'));
+    r.crops.forEach((x) => {
+      const c = x.c;
+      let t = '「' + c.name + '」';
+      if (x.g.state === 'ok') {
+        t += md(c.sow) + ' 种 → ' + when(x.g.harvest) + ' 收，' + x.g.days + ' 天攒够 ' + f0(c.need) + '°C·天';
+        t += x.spare == null ? '，一年内都冻不着' : '，收完还有 ' + x.spare + ' 天才冻到 ' + f1(c.kill) + '°C';
+        if (x.run && !x.w.all) t += '；最晚还能拖到 ' + md(x.run.to) + '（再晚 ' + x.late + ' 天）';
+        t += '。';
+      } else t += sumText(x).replace('「' + c.name + '」', '') + '；' + fixText(x) + '。';
+      if (x.w.all) t += '一年哪天种都赶得上。';
+      else if (!x.w.none) t += '能种的日子：' + x.w.runs.map((u) => md(u.from) + '～' + md(u.to)).join('、') + '。';
+      facts.push(t);
+    });
+    return Object.assign(r, { summary, facts });
+  }
+
+  /* 建议：只给赶不上的菜，改的都是你填的那一格 */
+  function suggestions(inp, r) {
+    const out = [];
+    const copy = (o) => JSON.parse(JSON.stringify(o));
+    const tell = (s, i) => { const P = parse(s); const g = grow(P, P.crops[i], P.crops[i].sow); return verdict(g) + (g.state === 'ok' ? '（' + g.days + ' 天）' : ''); };
+    r.crops.forEach((x) => {
+      if (x.g.state === 'ok') return;
+      const i = x.i, c = x.c;
+      const b = x.near.back, f = x.near.fwd;
+      if (!x.w.none) {
+        const useBack = b != null && (f == null || b <= f);
+        const to = useBack ? c.sow - b : c.sow + f;
+        const s = copy(inp); s.crops[i].sow = md(to);
+        out.push({ id: 'sow-' + i, text: '「' + c.name + '」改到 ' + md(to) + ' 种（' + (useBack ? '早 ' + b : '晚 ' + f) + ' 天）：' + tell(s, i) + '。', apply: s });
+      }
+      if (x.g.state === 'kill') {
+        const mx = Math.floor(x.g.cum + 1e-9);
+        if (mx >= 10 && mx < c.need) {
+          const s = copy(inp); s.crops[i].need = String(mx);
+          out.push({ id: 'need-' + i, text: '「' + c.name + '」不改日子，换个熟得快的品种（积温要求不超过 ' + mx + '°C·天）：' + tell(s, i) + '。', apply: s });
+        }
+      }
+    });
+    return out;
+  }
+
+  function csvCell(v) { const s = String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+  function cropRow(x) {
+    const g = x.g;
+    return [x.c.name, md(x.c.sow), f1(x.c.base), f0(x.c.need), f1(x.c.kill),
+      g.state === 'ok' ? '赶得上' : g.state === 'kill' ? '冻坏' : '攒不够',
+      g.state === 'ok' ? when(g.harvest) : '', g.state === 'ok' ? g.days : '', g.state === 'kill' ? when(g.killAt) : '', Math.floor(g.cum + 1e-9),
+      x.w.all ? '全年' : x.w.none ? '没有' : x.w.runs.map((u) => md(u.from) + '～' + md(u.to)).join(' / ')];
+  }
+  const HEAD = ['菜', '播种', '起点温度 °C', '需要积温 °C·天', '怕冻 °C', '结果', '收获', '天数', '冻坏那天', '攒到积温', '能种的日子'];
+  function toCSV(r, stamp) {
+    const L = [['下霜前那畦菜', '生成于 ' + stamp], ['结论', r.summary], [], HEAD];
+    r.crops.forEach((x) => L.push(cropRow(x)));
+    L.push([], ['早种晚种对照'].concat(OFFS.map((o) => (o > 0 ? '晚 ' + o : o < 0 ? '早 ' + -o : '原定') + ' 天')));
+    r.crops.forEach((x) => L.push([x.c.name].concat(x.offs.map((o) => o.sow + ' 种：' + o.text))));
+    return L.map((row) => row.map(csvCell).join(',')).join('\n') + '\n';
+  }
+  function toMD(r, stamp, sg) {
+    const P = r.P, o = [];
+    o.push('# 下霜前那畦菜', '', '生成时间：' + stamp + '　默认数据为虚构示例，作物参数是示例值', '', '**' + r.summary + '**', '');
+    r.facts.forEach((f) => o.push('- ' + f));
+    o.push('', '## 每样菜', '', '| ' + HEAD.join(' | ') + ' |', '|' + HEAD.map(() => '---').join('|') + '|');
+    r.crops.forEach((x) => o.push('| ' + cropRow(x).map((v) => String(v).replace(/\|/g, '/')).join(' | ') + ' |'));
+    o.push('', '## 早种晚种对照', '', '| 菜 | ' + OFFS.map((v) => (v > 0 ? '晚 ' + v : v < 0 ? '早 ' + -v : '原定') + ' 天').join(' | ') + ' |', '|---|' + OFFS.map(() => '---').join('|') + '|');
+    r.crops.forEach((x) => o.push('| ' + x.c.name + ' | ' + x.offs.map((v) => v.sow + ' 种：' + v.text).join(' | ') + ' |'));
+    if (sg && sg.length) { o.push('', '## 换个做法'); sg.forEach((s) => o.push('- ' + s.text)); }
+    o.push('', '## 前提', '',
+      '- 日平均气温按一年一个正弦：隆冬 ' + f1(P.cold) + '°C、盛夏 ' + f1(P.hot) + '°C、' + md(P.peak) + ' 最热；日最低 = 日平均 − ' + f1(P.range / 2) + '°C。不算某一年的寒潮、倒春寒和暖冬。',
+      '- 有效积温用日平均法：每天 max(0, min(日平均, ' + f1(P.cap) + ') − 起点温度)，逐日累加；收获前（含当天）最低气温 ≤ 怕冻温度就算冻坏。',
+      '- 作物的起点温度、积温、怕冻温度是示例值，按种子包装、当地农技站或自己的经验改。不算盖膜、大棚、光照和水肥。');
+    return o.join('\n') + '\n';
+  }
+
+  const api = { fl, toCSV, toMD, parse, calculate, suggestions, grow, windows, frostSeason, tMean, tMin, gdd, parseDate, md, when, f0, f1, OFFS, MAX_CROPS, Y, _core: core };
+  if (typeof module === 'object' && module.exports) module.exports = api; else root.AppCore = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+  </script>
+  <script>
+/* 下霜前那畦菜 · 界面层 */
+(function () {
+  'use strict';
+  const C = window.AppCore;
+  const KEY = 'frost-bed:v1';
+  const TOP = ['hot', 'cold', 'peak', 'range', 'cap'];
+  const CF = ['name', 'sow', 'base', 'need', 'kill'];
+  const LIM = { hot: 6, cold: 6, peak: 6, range: 5, cap: 5, name: 12, sow: 6, base: 5, need: 5, kill: 5 };
+  const LAB = { name: '菜名', sow: '播种日', base: '起点温度 °C', need: '需要积温 °C·天', kill: '怕冻 °C' };
+  const copy = (o) => JSON.parse(JSON.stringify(o));
+  const crop = (name, sow, base, need, kill) => ({ name, sow, base: String(base), need: String(need), kill: String(kill) });
+  const NORTH = { hot: '27', cold: '-3', peak: '07-20', range: '10', cap: '30' };
+  const DEFAULT = Object.assign({}, NORTH, { crops: [crop('大白菜', '08-10', 5, 1300, -5), crop('秋萝卜', '08-12', 5, 1000, -4), crop('秋黄瓜', '08-15', 10, 800, 1), crop('菠菜', '09-10', 2, 500, -10)] });
+  const PRESETS = [
+    ['默认：北方一块秋菜地', DEFAULT],
+    ['东北，一年只种一茬', { hot: '23', cold: '-17', peak: '07-22', range: '12', cap: '30', crops: [crop('早熟玉米', '05-05', 10, 1100, -1), crop('大豆', '05-10', 10, 1250, -2), crop('晚种的早熟玉米', '06-05', 10, 1100, -1)] }],
+    ['江南，冬天也能种', { hot: '29', cold: '4', peak: '07-28', range: '8', cap: '32', crops: [crop('青菜', '10-15', 4, 450, -6), crop('莴笋', '09-25', 4, 1100, -3), crop('秋番茄', '08-20', 10, 1100, 2)] }],
+    ['阳台一盆小番茄', { hot: '26', cold: '-1', peak: '07-25', range: '9', cap: '30', crops: [crop('小番茄', '04-10', 10, 1200, 2)] }]
+  ];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let state = copy(DEFAULT);
+  let last = null;
+
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* 隐私模式忽略 */ } }
+  function load() {
+    try {
+      const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!o || typeof o !== 'object' || Array.isArray(o) || !Array.isArray(o.crops) || o.crops.length > C.MAX_CROPS) return null;
+      const s = {};
+      for (const k of TOP) { if (o[k] == null) return null; s[k] = String(o[k]).slice(0, LIM[k]); }
+      s.crops = [];
+      for (const c of o.crops) {
+        if (!c || typeof c !== 'object') return null;
+        const x = {};
+        for (const k of CF) { if (c[k] == null) return null; x[k] = String(c[k]).slice(0, LIM[k]); }
+        s.crops.push(x);
+      }
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function buildCrops() {
+    const box = $('crops'); box.innerHTML = '';
+    const n = state.crops.length;
+    state.crops.forEach((c, i) => {
+      const row = document.createElement('div'); row.className = 'crop';
+      const k = 'c' + i + '-';
+      row.innerHTML = CF.map((f) => '<div' + (f === 'name' ? ' class="nm"' : '') + '><label for="' + k + f + '">' + (f === 'name' ? '第 ' + (i + 1) + ' 样' : LAB[f]) + '</label><input id="' + k + f + '" maxlength="' + LIM[f] + '"' + (f === 'name' ? '' : f === 'sow' ? ' placeholder="08-10"' : ' inputmode="decimal"') + '></div>').join('') +
+        '<div class="ops"><button class="x" data-up="' + i + '" title="往上挪">↑</button><button class="x" data-down="' + i + '" title="往下挪">↓</button><button class="x" data-del="' + i + '" title="删掉这样">删</button></div>';
+      box.appendChild(row);
+      CF.forEach((f) => {
+        const el = $(k + f); el.value = c[f];
+        el.addEventListener('input', () => { state.crops[i][f] = el.value; run(); });
+      });
+      row.querySelector('[data-up]').disabled = i === 0;
+      row.querySelector('[data-down]').disabled = i === n - 1;
+      row.querySelector('[data-up]').addEventListener('click', () => { const a = state.crops; [a[i - 1], a[i]] = [a[i], a[i - 1]]; buildCrops(); run(); });
+      row.querySelector('[data-down]').addEventListener('click', () => { const a = state.crops; [a[i + 1], a[i]] = [a[i], a[i + 1]]; buildCrops(); run(); });
+      row.querySelector('[data-del]').addEventListener('click', () => { state.crops.splice(i, 1); buildCrops(); run(); });
+    });
+    $('add').disabled = n >= C.MAX_CROPS;
+  }
+  function fill() { TOP.forEach((k) => { $(k).value = state[k]; }); buildCrops(); }
+  function setSow(i, d) { state.crops[i].sow = C.md(d); const el = $('c' + i + '-sow'); if (el) el.value = state.crops[i].sow; run(); }
+  function paintRows(r) {
+    r.crops.forEach((x, i) => {
+      const el = document.querySelectorAll('#crops .crop')[i];
+      if (el) el.style.setProperty('--st', x.g.state === 'ok' ? '#5b8a2b' : '#c0472c');
+    });
+  }
+
+  /* ── 日历（SVG 与 PNG 共用几何） ── */
+  const MON = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+  const MSTART = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  function calGeom(r, W0, nameW) {
+    const padL = nameW, padR = 12, top = 22, tH = 86, rowH = 34, gap = 8;
+    const W = W0 - padL - padR;
+    const n = r.crops.length;
+    const H0 = top + tH + 16 + n * (rowH + gap) + 18;
+    let lo = Math.min(r.P.cold - r.P.range / 2, 0), hi = Math.max(r.P.hot, 0);
+    r.crops.forEach((x) => { lo = Math.min(lo, x.c.kill); });
+    if (hi - lo < 4) { hi += 2; lo -= 2; }
+    return { padL, padR, top, tH, rowH, gap, W, H0, lo, hi, X: (d) => padL + d / C.Y * W, Yt: (t) => top + (hi - t) / (hi - lo) * tH, rowY: (i) => top + tH + 16 + i * (rowH + gap) };
+  }
+  /* 把可能跨年的 [a, b]（绝对天，b 可 ≥ 365）切成落在 0..365 内的几段 */
+  function spans(a, b) {
+    const out = []; let s = a;
+    while (s <= b) { const yEnd = (Math.floor(s / C.Y) + 1) * C.Y - 1; const e = Math.min(b, yEnd); out.push([s % C.Y, e % C.Y + 1]); s = e + 1; }
+    return out;
+  }
+  function runsOf(ok) { const o = []; let s = null; for (let d = 0; d <= C.Y; d++) { if (d < C.Y && ok[d]) { if (s == null) s = d; } else if (s != null) { o.push([s, d]); s = null; } } return o; }
+  function frostRuns(P) { const ok = []; for (let d = 0; d < C.Y; d++) ok.push(C.tMin(P, d) <= 1e-12); return runsOf(ok); }
+  function svgW() { const w = ($('out') && $('out').clientWidth) || 900; return Math.round(Math.max(380, Math.min(940, w * (w < 600 ? 1.05 : 1.3)))); }
+  function nameFit(s, n) { return s.length > n ? s.slice(0, Math.max(1, n - 1)) + '…' : s; }
+  function tickT(lo, hi) { const sp = hi - lo; for (const s of [2, 5, 10, 20]) if (sp / s <= 5) return s; return 50; }
+  function renderCal(r) {
+    const W0 = svgW(), nameW = W0 < 700 ? 70 : 96, g = calGeom(r, W0, nameW), P = r.P, fz = W0 < 700 ? 13 : 12;
+    let h = '<svg viewBox="0 0 ' + W0 + ' ' + g.H0 + '" role="img" aria-label="一年的日历">';
+    const bottom = g.rowY(r.crops.length) - g.gap;
+    frostRuns(P).forEach(([a, b]) => { h += '<rect x="' + g.X(a) + '" y="' + g.top + '" width="' + (g.X(b) - g.X(a)) + '" height="' + (bottom - g.top) + '" fill="#cfe0ef" opacity="0.55"/>'; });
+    MSTART.forEach((d, m) => {
+      h += '<line x1="' + g.X(d) + '" x2="' + g.X(d) + '" y1="' + g.top + '" y2="' + bottom + '" stroke="#e3dccb"/>';
+      if (W0 >= 700 || m % 2 === 0) h += '<text x="' + (g.X(d) + 3) + '" y="' + (g.top - 7) + '" font-size="' + fz + '" fill="#716a57">' + MON[m] + '</text>';
+    });
+    const st = tickT(g.lo, g.hi);
+    for (let t = Math.ceil(g.lo / st) * st; t <= g.hi; t += st) h += '<text x="' + (g.padL - 6) + '" y="' + (g.Yt(t) + 4) + '" text-anchor="end" font-size="11" fill="#716a57">' + t + '°</text><line x1="' + g.padL + '" x2="' + (W0 - g.padR) + '" y1="' + g.Yt(t) + '" y2="' + g.Yt(t) + '" stroke="#efe9dc"/>';
+    h += '<line x1="' + g.padL + '" x2="' + (W0 - g.padR) + '" y1="' + g.Yt(0) + '" y2="' + g.Yt(0) + '" stroke="#7fa6c9" stroke-dasharray="4 3"/>';
+    let pm = '', pn = '';
+    for (let d = 0; d <= C.Y; d += 3) { pm += g.X(d) + ',' + g.Yt(C.tMean(P, d)) + ' '; pn += g.X(d) + ',' + g.Yt(C.tMin(P, d)) + ' '; }
+    h += '<polyline points="' + pm + '" fill="none" stroke="#c9a24a" stroke-width="2.5"/><polyline points="' + pn + '" fill="none" stroke="#7fa6c9" stroke-width="1.5"/>';
+    r.crops.forEach((x, i) => {
+      const y = g.rowY(i), c = x.c;
+      h += '<text x="4" y="' + (y + g.rowH / 2 + 5) + '" font-size="13" fill="#2b2a24">' + esc(nameFit(c.name, W0 < 700 ? 4 : 7)) + '</text>';
+      h += '<rect x="' + g.padL + '" y="' + y + '" width="' + g.W + '" height="' + g.rowH + '" fill="#f7f3ea"/>';
+      runsOf(x.w.ok).forEach(([a, b]) => { h += '<rect x="' + g.X(a) + '" y="' + y + '" width="' + (g.X(b) - g.X(a)) + '" height="' + g.rowH + '" fill="#e3eccf"/>'; });
+      const ok = x.g.state === 'ok', end = ok ? x.g.harvest : x.g.state === 'kill' ? x.g.killAt : c.sow + C.Y - 1;
+      spans(c.sow, end).forEach(([a, b]) => { h += '<rect x="' + g.X(a) + '" y="' + (y + 9) + '" width="' + Math.max(2, g.X(b) - g.X(a)) + '" height="' + (g.rowH - 18) + '" rx="3" fill="' + (ok ? '#5b8a2b' : '#c0472c') + '"/>'; });
+      h += '<circle cx="' + g.X(c.sow + 0.5) + '" cy="' + (y + g.rowH / 2) + '" r="5" fill="#fff" stroke="#2b2a24" stroke-width="1.5"/>';
+      if (x.g.state !== 'short') {
+        const ex = g.X(C.Y === 0 ? 0 : (end % C.Y) + 0.5), lab = ok ? '收 ' + C.md(end) : '冻 ' + C.md(end);
+        h += '<text x="' + ex + '" y="' + (y + g.rowH - 1) + '" font-size="' + (fz - 1) + '" text-anchor="' + (ex > W0 - 70 ? 'end' : 'start') + '" fill="' + (ok ? '#3f6a1f' : '#a8321f') + '">' + (ok ? '✓' : '✗') + ' ' + lab + '</text>';
+      }
+      h += '<rect class="hit" data-row="' + i + '" x="' + g.padL + '" y="' + y + '" width="' + g.W + '" height="' + g.rowH + '" fill="transparent"/>';
+    });
+    h += '</svg>';
+    $('cal').innerHTML = h;
+    [].forEach.call($('cal').querySelectorAll('.hit'), (el) => el.addEventListener('click', (ev) => {
+      const svg = $('cal').querySelector('svg'), bb = svg.getBoundingClientRect();
+      const px = (ev.clientX - bb.left) / bb.width * W0;
+      const d = Math.max(0, Math.min(C.Y - 1, Math.floor((px - g.padL) / g.W * C.Y)));
+      setSow(+el.dataset.row, d);
+    }));
+  }
+  function offHead() { return C.OFFS.map((o) => (o > 0 ? '晚 ' + o + ' 天' : o < 0 ? '早 ' + -o + ' 天' : '原定')); }
+  function renderOffs(r) {
+    let h = '<tr><th>菜</th>' + offHead().map((t) => '<th>' + t + '</th>').join('') + '</tr>';
+    r.crops.forEach((x, i) => {
+      h += '<tr><td>' + esc(x.c.name) + '</td>' + x.offs.map((o) => '<td class="' + (o.g.state === 'ok' ? 'ok' : 'no') + (o.off === 0 ? ' cur' : '') + '" data-i="' + i + '" data-off="' + o.off + '" style="cursor:pointer">' + o.sow + ' 种<br>' + esc(o.text) + '</td>').join('') + '</tr>';
+    });
+    $('offs').innerHTML = h;
+    [].forEach.call($('offs').querySelectorAll('td[data-off]'), (td) => td.addEventListener('click', () => {
+      const i = +td.dataset.i, off = +td.dataset.off; if (!off) return;
+      setSow(i, last.r.crops[i].c.sow + off);
+    }));
+  }
+  function sugList(sg) {
+    const box = $('sugs'); box.innerHTML = '';
+    sg.forEach((x) => {
+      const d = document.createElement('div'); d.className = 'sug';
+      d.innerHTML = '<span>' + esc(x.text) + '</span>';
+      if (x.apply) {
+        const bt = document.createElement('button'); bt.textContent = '代回去算'; bt.dataset.sug = x.id;
+        bt.addEventListener('click', () => { state = copy(x.apply); fill(); run(); });
+        d.appendChild(bt);
+      }
+      box.appendChild(d);
+    });
+    $('sugCard').style.display = sg.length ? '' : 'none';
+  }
+  function run() {
+    [].forEach.call(document.querySelectorAll('.bad'), (e) => e.classList.remove('bad'));
+    $('add').disabled = state.crops.length >= C.MAX_CROPS;
+    try {
+      const r = C.calculate(state);
+      const sg = C.suggestions(state, r);
+      $('error').style.display = 'none'; $('out').style.display = '';
+      $('summary').textContent = r.summary;
+      $('facts').innerHTML = r.facts.map((f) => '<li>' + esc(f) + '</li>').join('');
+      last = { r, sg };
+      renderCal(r); renderOffs(r); sugList(sg); paintRows(r);
+    } catch (e) {
+      last = null;
+      if (e.field) { const el = $(e.field); if (el) el.classList.add('bad'); }
+      $('error').textContent = '算不了：' + e.message; $('error').style.display = 'block';
+      $('out').style.display = 'none';
+    }
+    save();
+  }
+
+  /* ── 导出 ── */
+  function stamp() { const d = new Date(), z = (n) => String(n).padStart(2, '0'); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()); }
+  function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+  function wrap(g, t, w) {
+    const NOHEAD = '，。、；：！？）」』%·～';
+    const out = []; let line = [];
+    const toks = String(t).match(/[+±-]?[0-9][0-9,.:%/-]*|[A-Za-z_][A-Za-z0-9_.\-]*|[\s\S]/g) || [];
+    const width = (a) => g.measureText(a.join('')).width;
+    for (const tk of toks) {
+      if (line.length && width(line.concat([tk])) > w) {
+        let carry = [tk];
+        while (line.length > 1 && (NOHEAD.indexOf(carry[0][0]) >= 0 || '（「『'.indexOf(line[line.length - 1]) >= 0)) carry.unshift(line.pop());
+        out.push(line.join(''));
+        line = carry; if (/^\s+$/.test(line[0])) line.shift();
+      } else line.push(tk);
+    }
+    if (line.length) out.push(line.join('')); return out;
+  }
+  function fitText(g, t, w) {
+    if (g.measureText(t).width <= w) return t;
+    let s = t; while (s.length > 1 && g.measureText(s + '…').width > w) s = s.slice(0, -1);
+    return s + '…';
+  }
+  function drawPNG(Lx) {
+    const r = Lx.r, P = r.P;
+    const Wd = 1080, H = 1350, X = 70, TW = 940;
+    const cv = document.createElement('canvas'); cv.width = Wd; cv.height = H;
+    const g = cv.getContext('2d'), FF = '"PingFang SC","Microsoft YaHei",sans-serif';
+    g.fillStyle = '#f3efe6'; g.fillRect(0, 0, Wd, H);
+    g.fillStyle = '#fffdf8'; g.fillRect(36, 36, Wd - 72, H - 72);
+    g.fillStyle = '#716a57'; g.font = '24px ' + FF;
+    g.fillText(fitText(g, '下霜前那畦菜 · ' + r.crops.length + ' 样菜 · 日平均 ' + C.f1(P.cold) + '～' + C.f1(P.hot) + '°C', TW), X, 96);
+    g.fillStyle = '#2b2a24'; g.font = 'bold 32px ' + FF;
+    let y = 148;
+    const sl = wrap(g, r.summary, TW);
+    if (sl.length > 5) { sl.length = 5; sl[4] = fitText(g, sl[4] + '……', TW); }
+    sl.forEach((l) => { g.fillText(l, X, y); y += 44; });
+    y += 10;
+    g.fillStyle = '#57503d'; g.font = '22px ' + FF; g.fillText('一年的日历（蓝底是霜期，浅绿是能种的日子）', X, y); y += 18;
+    const gc = calGeom(r, TW, 120);
+    g.save(); g.translate(X, y);
+    const bottom = gc.rowY(r.crops.length) - gc.gap;
+    g.fillStyle = 'rgba(207,224,239,0.55)';
+    frostRuns(P).forEach(([a, b]) => g.fillRect(gc.X(a), gc.top, gc.X(b) - gc.X(a), bottom - gc.top));
+    g.font = '15px ' + FF;
+    MSTART.forEach((d, m) => { g.strokeStyle = '#e3dccb'; g.lineWidth = 1; g.beginPath(); g.moveTo(gc.X(d), gc.top); g.lineTo(gc.X(d), bottom); g.stroke(); g.fillStyle = '#716a57'; g.fillText(MON[m], gc.X(d) + 3, gc.top - 6); });
+    const st = tickT(gc.lo, gc.hi); g.textAlign = 'right'; g.font = '14px ' + FF;
+    for (let t = Math.ceil(gc.lo / st) * st; t <= gc.hi; t += st) g.fillText(t + '°', gc.padL - 6, gc.Yt(t) + 5);
+    g.textAlign = 'left';
+    g.setLineDash([5, 4]); g.strokeStyle = '#7fa6c9'; g.beginPath(); g.moveTo(gc.padL, gc.Yt(0)); g.lineTo(TW - gc.padR, gc.Yt(0)); g.stroke(); g.setLineDash([]);
+    [[C.tMean, '#c9a24a', 3], [C.tMin, '#7fa6c9', 2]].forEach(([fn, col, lw]) => { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); for (let d = 0; d <= C.Y; d += 3) g[d ? 'lineTo' : 'moveTo'](gc.X(d), gc.Yt(fn(P, d))); g.stroke(); });
+    r.crops.forEach((x, i) => {
+      const yy = gc.rowY(i), c = x.c;
+      g.fillStyle = '#2b2a24'; g.font = '18px ' + FF; g.fillText(fitText(g, c.name, gc.padL - 10), 0, yy + gc.rowH / 2 + 6);
+      g.fillStyle = '#f7f3ea'; g.fillRect(gc.padL, yy, gc.W, gc.rowH);
+      g.fillStyle = '#e3eccf'; runsOf(x.w.ok).forEach(([a, b]) => g.fillRect(gc.X(a), yy, gc.X(b) - gc.X(a), gc.rowH));
+      const ok = x.g.state === 'ok', end = ok ? x.g.harvest : x.g.state === 'kill' ? x.g.killAt : c.sow + C.Y - 1;
+      g.fillStyle = ok ? '#5b8a2b' : '#c0472c';
+      spans(c.sow, end).forEach(([a, b]) => g.fillRect(gc.X(a), yy + 9, Math.max(2, gc.X(b) - gc.X(a)), gc.rowH - 18));
+      g.beginPath(); g.arc(gc.X(c.sow + 0.5), yy + gc.rowH / 2, 5, 0, 7); g.fillStyle = '#fff'; g.fill(); g.strokeStyle = '#2b2a24'; g.lineWidth = 1.5; g.stroke();
+      if (x.g.state !== 'short') {
+        const ex = gc.X((end % C.Y) + 0.5), lab = (ok ? '✓ 收 ' : '✗ 冻 ') + C.md(end);
+        g.font = '14px ' + FF; g.fillStyle = ok ? '#3f6a1f' : '#a8321f';
+        g.textAlign = ex > TW - 90 ? 'right' : 'left'; g.fillText(lab, ex + (ex > TW - 90 ? -4 : 4), yy + gc.rowH + 4); g.textAlign = 'left';
+      }
+    });
+    g.restore();
+    y += gc.H0 + 20;
+    g.fillStyle = '#57503d'; g.font = '22px ' + FF; g.fillText('每样菜', X, y); y += 34;
+    for (const x of r.crops) {
+      if (y > H - 190) { g.fillStyle = '#716a57'; g.font = '18px ' + FF; g.fillText('……完整内容见 CSV / Markdown', X, y); y += 30; break; }
+      const ok = x.g.state === 'ok';
+      g.fillStyle = ok ? '#3f6a1f' : '#a8321f'; g.font = 'bold 21px ' + FF;
+      const t = (ok ? '✓ ' : '✗ ') + x.c.name + '：' + C.md(x.c.sow) + ' 种 → ' + (ok ? C.when(x.g.harvest) + ' 收（' + x.g.days + ' 天）' : x.g.state === 'kill' ? C.when(x.g.killAt) + ' 冻坏' : '一年攒不够');
+      g.fillText(fitText(g, t, TW), X, y); y += 30;
+      g.fillStyle = '#5e5a4c'; g.font = '18px ' + FF;
+      const w = x.w.all ? '一年哪天种都赶得上' : x.w.none ? '这里一年里哪天种都赶不上' : '能种的日子：' + x.w.runs.map((u) => C.md(u.from) + '～' + C.md(u.to)).join('、');
+      g.fillText(fitText(g, w, TW), X + 26, y); y += 34;
+    }
+    /* 早种晚种对照（剩余空间够才画） */
+    const rowsFit = Math.floor((H - 130 - (y + 70)) / 30);
+    if (rowsFit >= 1) {
+      y += 18;
+      g.fillStyle = '#57503d'; g.font = '22px ' + FF; g.fillText('早种、晚种各一两周', X, y); y += 34;
+      const cw = (TW - 150) / C.OFFS.length;
+      g.font = '17px ' + FF; g.fillStyle = '#716a57';
+      offHead().forEach((t, k) => g.fillText(t, X + 150 + k * cw, y)); y += 28;
+      for (const x of r.crops.slice(0, rowsFit)) {
+        g.fillStyle = '#2b2a24'; g.font = '17px ' + FF; g.fillText(fitText(g, x.c.name, 140), X, y);
+        x.offs.forEach((o, k) => {
+          g.fillStyle = o.g.state === 'ok' ? '#3f6a1f' : '#a8321f'; g.font = (o.off === 0 ? 'bold ' : '') + '16px ' + FF;
+          g.fillText(fitText(g, o.g.state === 'ok' ? '✓ ' + o.text.replace(' 收', '') : '✗ ' + o.text.replace(' 冻坏', ' 冻').replace('一年攒不够', '攒不够'), cw - 8), X + 150 + k * cw, y);
+        });
+        y += 30;
+      }
+      if (rowsFit < r.crops.length) { g.fillStyle = '#716a57'; g.font = '16px ' + FF; g.fillText('……其余见 CSV / Markdown', X, y); }
+    }
+    g.fillStyle = '#716a57'; g.font = '18px ' + FF;
+    wrap(g, '气温按常年平均的一年（正弦）估算，积温用日平均法；作物参数是示例值，示例菜地为虚构。只作排日子参考，不是农技指导。', TW).forEach((l, i) => g.fillText(l, X, H - 96 + i * 26));
+    return Promise.resolve(cv);
+  }
+  function backup() {
+    const r = last.r;
+    return { app: '下霜前那畦菜', version: 1, savedAt: stamp(), input: copy(state),
+      result: { summary: r.summary, frostFreeDays: r.fs.free, firstFrost: r.fs.first != null ? C.md(r.fs.first) : null, lastFrost: r.fs.last != null ? C.md(r.fs.last) : null,
+        crops: r.crops.map((x) => ({ name: x.c.name, sow: C.md(x.c.sow), state: x.g.state, harvest: x.g.state === 'ok' ? C.when(x.g.harvest) : null, days: x.g.state === 'ok' ? x.g.days : null,
+          killedAt: x.g.state === 'kill' ? C.when(x.g.killAt) : null, gddReached: Math.floor(x.g.cum + 1e-9), windows: x.w.all ? 'all' : x.w.runs.map((u) => C.md(u.from) + '~' + C.md(u.to)) })) } };
+  }
+  function init() {
+    TOP.forEach((k) => $(k).addEventListener('input', () => { state[k] = $(k).value; run(); }));
+    $('add').addEventListener('click', () => { if (state.crops.length >= C.MAX_CROPS) return; state.crops.push(crop('新的菜', '09-01', 5, 600, -3)); buildCrops(); run(); });
+    PRESETS.forEach((p) => {
+      const b = document.createElement('button'); b.className = 'ghost'; b.textContent = p[0];
+      b.addEventListener('click', () => { state = copy(p[1]); fill(); run(); });
+      $('presets').appendChild(b);
+    });
+    $('reset').addEventListener('click', () => { state = copy(DEFAULT); fill(); run(); });
+    $('dlCSV').addEventListener('click', () => { if (last) download('下霜前那畦菜.csv', new Blob(['\ufeff' + C.toCSV(last.r, stamp())], { type: 'text/csv;charset=utf-8' })); });
+    $('dlMD').addEventListener('click', () => { if (last) download('下霜前那畦菜.md', new Blob([C.toMD(last.r, stamp(), last.sg)], { type: 'text/markdown;charset=utf-8' })); });
+    $('dlJSON').addEventListener('click', () => { if (last) download('下霜前那畦菜-备份.json', new Blob([JSON.stringify(backup(), null, 2)], { type: 'application/json' })); });
+    $('dlPNG').addEventListener('click', () => { if (last) drawPNG(last).then((cv) => cv.toBlob((b) => download('下霜前那畦菜-1080x1350.png', b), 'image/png')); });
+    state = load() || copy(DEFAULT);
+    fill(); run();
+    let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (last) renderCal(last.r); }, 150); });
+    window.__ex = { last: () => last, state: () => state, presets: PRESETS, DEFAULT };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+  </script>
+</body>
+</html>
